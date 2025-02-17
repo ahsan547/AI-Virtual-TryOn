@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-16">
+    <!-- Hero Section -->
+    <div class="max-w-4xl mx-auto text-center mb-16">
+        <h1 class="text-4xl font-bold mb-6">About Our Virtual Try-On System</h1>
+        <p class="text-xl text-gray-600">Experience the future of eyewear shopping with our AI-powered virtual try-on technology.</p>
+    </div>
+
+    <!-- Features Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <div class="text-4xl text-blue-600 mb-4">
+                <i class="fas fa-camera"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">Advanced AI Technology</h3>
+            <p class="text-gray-600">Using state-of-the-art facial recognition and 3D modeling to provide accurate virtual try-ons.</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <div class="text-4xl text-blue-600 mb-4">
+                <i class="fas fa-glasses"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">Wide Selection</h3>
+            <p class="text-gray-600">Browse through hundreds of frames and try them on virtually in real-time.</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <div class="text-4xl text-blue-600 mb-4">
+                <i class="fas fa-magic"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">Smart Recommendations</h3>
+            <p class="text-gray-600">Get personalized frame suggestions based on your face shape and skin tone.</p>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="bg-white rounded-lg shadow-md p-8 mb-16">
+        <h2 class="text-3xl font-bold text-center mb-8">How It Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-4">1</div>
+                <h3 class="font-semibold mb-2">Upload or Use Webcam</h3>
+                <p class="text-gray-600">Take a photo or use your webcam for real-time try-on.</p>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-4">2</div>
+                <h3 class="font-semibold mb-2">Face Analysis</h3>
+                <p class="text-gray-600">Our AI analyzes your face shape and features.</p>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-4">3</div>
+                <h3 class="font-semibold mb-2">Try On Frames</h3>
+                <p class="text-gray-600">Virtually try on different frames instantly.</p>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-4">4</div>
+                <h3 class="font-semibold mb-2">Get Recommendations</h3>
+                <p class="text-gray-600">Receive personalized frame suggestions.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold mb-4">Our Technology</h2>
+            <p class="text-gray-600 mb-4">Our virtual try-on system uses advanced computer vision and machine learning algorithms to:</p>
+            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                <li>Detect facial features with high precision</li>
+                <li>Analyze face shape and measurements</li>
+                <li>Determine skin tone and complexion</li>
+                <li>Provide accurate frame placement</li>
+                <li>Generate personalized recommendations</li>
+            </ul>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold mb-4">Privacy & Security</h2>
+            <p class="text-gray-600 mb-4">We take your privacy seriously. Our system:</p>
+            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                <li>Does not store your photos permanently</li>
+                <li>Processes all data securely</li>
+                <li>Uses encryption for data transfer</li>
+                <li>Complies with privacy regulations</li>
+                <li>Gives you full control over your data</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="text-center">
+        <a href="{% url 'tryon' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            Try It Now
+        </a>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="space-y-6">
+    <h1 class="text-3xl font-bold">Virtual Try-On System - Webcam Mode</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="space-y-6">
+        <div class="border rounded-lg p-4">
+          <h2 class="text-xl font-semibold mb-4">Webcam Feed</h2>
+          <img id="video-feed" src="" alt="Webcam Feed" class="w-full rounded-lg" />
+          <div class="mt-4 space-x-4">
+            <button onclick="startWebcam()" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+              Start Webcam
+            </button>
+            <button onclick="stopWebcam()" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2">
+              Stop Webcam
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-6">
+        <div class="border rounded-lg p-4">
+          <h2 class="text-xl font-semibold mb-4">Select Glasses</h2>
+          <select id="glassesSelector" onchange="updateProcessedImage()" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+            {% for i in glasses_range %}
+              <option value="{{ i }}">{{ glasses_files|index:i }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="border rounded-lg p-4">
+          <h2 class="text-xl font-semibold mb-4">Controls</h2>
+          <a href="{% url 'index' %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2">
+            Back to Upload Mode
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Start webcam automatically when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    startWebcam();
+  });
+</script>
+{% endblock %} 

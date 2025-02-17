@@ -1,0 +1,10 @@
+/* Add any custom CSS here */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#video-feed, #processed-image {
+    max-width: 100%;
+    height: auto;
+} 

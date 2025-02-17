@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Try-On System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'virtualtryon/css/style.css' %}">
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'home' %}" class="text-2xl font-bold">VirtualTryOn</a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="{% url 'home' %}" class="text-gray-600 hover:text-gray-900">Home</a>
+                    <a href="{% url 'tryon' %}" class="text-gray-600 hover:text-gray-900">Try On</a>
+                    <a href="{% url 'about' %}" class="text-gray-600 hover:text-gray-900">About</a>
+                    <a href="{% url 'contact' %}" class="text-gray-600 hover:text-gray-900">Contact</a>
+                </div>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden md:hidden mt-4">
+                <div class="flex flex-col space-y-4">
+                    <a href="{% url 'home' %}" class="text-gray-600 hover:text-gray-900">Home</a>
+                    <a href="{% url 'tryon' %}" class="text-gray-600 hover:text-gray-900">Try On</a>
+                    <a href="{% url 'about' %}" class="text-gray-600 hover:text-gray-900">About</a>
+                    <a href="{% url 'contact' %}" class="text-gray-600 hover:text-gray-900">Contact</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <p>Email: ahalimalik@gmail.com</p>
+                    <p>Phone: (123) 456-7890</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'home' %}" class="hover:text-gray-300">Home</a></li>
+                        <li><a href="{% url 'tryon' %}" class="hover:text-gray-300">Try On</a></li>
+                        <li><a href="{% url 'about' %}" class="hover:text-gray-300">About</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-gray-300">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-gray-300"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="hover:text-gray-300"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="hover:text-gray-300"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="hover:text-gray-300"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <p>&copy; 2024 Virtual Try-On System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

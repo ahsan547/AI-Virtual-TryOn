@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="space-y-6">
+      <h1 class="text-3xl font-bold">Virtual Try-On System</h1>
+      <div class="border rounded-lg p-4">
+        <h2 class="text-xl font-semibold mb-4">Upload Photo</h2>
+        <form method="post" enctype="multipart/form-data" action="{% url 'upload_image' %}" class="space-y-4">
+          {% csrf_token %}
+          <div class="grid w-full max-w-sm items-center gap-1.5">
+            <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="picture">
+              Picture
+            </label>
+            <input
+              id="picture"
+              type="file"
+              name="image"
+              accept="image/*"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+          <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2" type="submit">
+            Upload
+          </button>
+        </form>
+      </div>
+      <div class="border rounded-lg p-4">
+        <h2 class="text-xl font-semibold mb-4">Use Webcam</h2>
+        <a href="{% url 'webcam_try_on' %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2">
+          Open Webcam
+        </a>
+      </div>
+    </div>
+    <div class="space-y-6">
+      <div class="border rounded-lg p-4">
+        <h2 class="text-xl font-semibold mb-4">Preview</h2>
+        {% if processed_url %}
+          <img id="processed-image" src="{{ processed_url }}" alt="Processed Image" class="w-full rounded-lg" />
+        {% else %}
+          <div class="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
+            <span class="text-gray-500">No image uploaded</span>
+          </div>
+        {% endif %}
+      </div>
+      {% if face_analysis or skin_tone %}
+      <div class="border rounded-lg p-4 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Your Analysis Results</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% if face_analysis %}
+          <div class="space-y-2">
+            <h3 class="font-medium text-lg">Face Shape Analysis</h3>
+            <p class="text-gray-700">Your face shape: <span class="font-semibold capitalize">{{ face_analysis.shape }}</span></p>
+            <div class="text-sm text-gray-600">
+              <p>Measurements:</p>
+              <ul class="list-disc pl-5">
+                <li>Width to Length Ratio: {{ face_analysis.measurements.ratio_width_length|floatformat:2 }}</li>
+                <li>Cheekbone to Jaw Ratio: {{ face_analysis.measurements.ratio_cheekbone_jaw|floatformat:2 }}</li>
+              </ul>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if skin_tone %}
+          <div class="space-y-2">
+            <h3 class="font-medium text-lg">Skin Tone Analysis</h3>
+            <p class="text-gray-700">Your skin tone: <span class="font-semibold capitalize">{{ skin_tone.tone }}</span></p>
+            <div class="text-sm text-gray-600">
+              <p>Color Values:</p>
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded border" style="background-color: rgb({{ skin_tone.rgb.0|floatformat:0 }}, {{ skin_tone.rgb.1|floatformat:0 }}, {{ skin_tone.rgb.2|floatformat:0 }})"></div>
+                <span>RGB: ({{ skin_tone.rgb.0|floatformat:0 }}, {{ skin_tone.rgb.1|floatformat:0 }}, {{ skin_tone.rgb.2|floatformat:0 }})</span>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      <div class="border rounded-lg p-4">
+        <h2 class="text-xl font-semibold mb-4">Select Glasses</h2>
+        <select id="glassesSelector" onchange="updateProcessedImage()" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+          {% for i in glasses_range %}
+            <option value="{{ i }}">{{ glasses_files|index:i }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if face_analysis %}
+      <div class="border rounded-lg p-4">
+        <h2 class="text-xl font-semibold mb-4">Recommended Frames</h2>
+        <div class="grid grid-cols-3 gap-4">
+          {% for frame in top_frames %}
+            <div class="text-center">
+              <img src="{% static 'virtualtryon/glasses/'|add:frame %}" alt="{{ frame }}" class="w-full rounded-lg" />
+              <p class="mt-2 text-sm">{{ frame }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      {% if recommendations %}
+      <div class="border rounded-lg p-4 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Personalized Recommendations</h2>
+        <div class="space-y-4">
+          <div>
+            <h3 class="font-medium">Based on your face shape:</h3>
+            <p class="text-gray-600">{{ recommendations.shape_advice }}</p>
+          </div>
+          <div>
+            <h3 class="font-medium">Based on your skin tone:</h3>
+            <p class="text-gray-600">{{ recommendations.color_advice }}</p>
+          </div>
+          <div>
+            <h3 class="font-medium">Recommended Frames:</h3>
+            <div class="grid grid-cols-3 gap-4 mt-2">
+              {% for frame in recommendations.frames %}
+              <div class="text-center">
+                <img src="{% static 'virtualtryon/glasses/'|add:frame|add:'.png' %}" 
+                     alt="{{ frame }}" 
+                     class="w-full rounded-lg border p-2" />
+                <p class="mt-2 text-sm font-medium">{{ frame }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

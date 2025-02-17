@@ -1,0 +1,56 @@
+{
+    "glasses9.png": {
+        "shape": "rectangular",
+        "color_category": "black",
+        "frame_width": "medium",
+        "style": "modern"
+    },
+    "glasses8.png": {
+        "shape": "cat-eye",
+        "color_category": "gold",
+        "frame_width": "narrow",
+        "style": "modern"
+    },
+    "glasses3.png": {
+        "shape": "rectangular",
+        "color_category": "silver",
+        "frame_width": "wide",
+        "style": "modern"
+    },
+    "glasses2.png": {
+        "shape": "round",
+        "color_category": "tortoise",
+        "frame_width": "medium",
+        "style": "classic"
+    },
+    "glasses1.png": {
+        "shape": "oval",
+        "color_category": "brown",
+        "frame_width": "narrow",
+        "style": "classic"
+    },
+    "glasses5.png": {
+        "shape": "geometric",
+        "color_category": "black",
+        "frame_width": "medium",
+        "style": "modern"
+    },
+    "glasses4.png": {
+        "shape": "round",
+        "color_category": "gold",
+        "frame_width": "narrow",
+        "style": "classic"
+    },
+    "glasses6.png": {
+        "shape": "cat-eye",
+        "color_category": "silver",
+        "frame_width": "medium",
+        "style": "modern"
+    },
+    "glasses7.png": {
+        "shape": "rectangular",
+        "color_category": "tortoise",
+        "frame_width": "wide",
+        "style": "modern"
+    }
+}
