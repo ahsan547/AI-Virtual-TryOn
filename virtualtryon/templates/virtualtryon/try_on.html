@@ -3,6 +3,8 @@
 {% load custom_filters %}
 
 {% block content %}
+
+
 <div class="container mx-auto px-4 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Sidebar with Glasses Selection -->
@@ -11,9 +13,7 @@
                 <h2 class="text-xl font-semibold mb-4">Select Glasses</h2>
                 <div class="grid grid-cols-2 gap-4">
                     {% for i in glasses_range %}
-                    <div class="cursor-pointer hover:opacity-75 transition-opacity glasses-option" 
-                         data-index="{{ i }}"
-                         onclick="selectGlasses({{ i }})">
+                    <div class="cursor-pointer hover:opacity-75" onclick="selectGlasses({{ i }})">
                         <img src="{% static 'virtualtryon/glasses/' %}{{ glasses_files|index:i }}" 
                              alt="Glasses {{ i }}" 
                              class="w-full rounded border p-2">
@@ -128,7 +128,11 @@ function selectGlasses(index) {
 // Handle image upload
 document.getElementById('uploadForm').addEventListener('submit', function(e) {
     e.preventDefault();
+    console.log("Form submitted");  // Debug log
+    
     const formData = new FormData(this);
+    const submitButton = this.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
     
     fetch("{% url 'upload_image' %}", {
         method: 'POST',
@@ -136,6 +140,11 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log("Response:", data);  // Debug log
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
         if (data.processed_url) {
             const processedImage = document.getElementById('processed-image');
             processedImage.src = data.processed_url;
@@ -147,30 +156,26 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
     })
     .catch(error => {
         console.error('Error:', error);
+        alert('Error uploading image: ' + error.message);
+    })
+    .finally(() => {
+        submitButton.disabled = false;
     });
 });
 
 function startWebcam() {
-    console.log("Starting webcam...");
     const videoFeed = document.getElementById('video-feed');
-    if (videoFeed) {
-        videoFeed.src = "{% url 'video_feed' %}";
-        webcamActive = true;
-        console.log("Webcam started");
-    } else {
-        console.log("Video feed element not found");
-    }
+    videoFeed.src = "{% url 'video_feed' %}";
+    webcamActive = true;
 }
 
 function stopWebcam() {
-    console.log("Stopping webcam...");
     const videoFeed = document.getElementById('video-feed');
     if (videoFeed) {
         videoFeed.src = "";
         webcamActive = false;
-        console.log("Webcam stopped");
-    } else {
-        console.log("Video feed element not found");
+        // Remove the error event listener to prevent error message
+        videoFeed.onerror = null;
     }
 }
 

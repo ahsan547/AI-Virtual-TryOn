@@ -17,14 +17,26 @@ logger = logging.getLogger(__name__)
 
 # Initialize MediaPipe Face Mesh
 mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1, refine_landmarks=True)
+face_mesh = mp_face_mesh.FaceMesh(
+    static_image_mode=True,
+    max_num_faces=1,
+    refine_landmarks=True,
+    min_detection_confidence=0.5
+)
 
-# Update glasses directory path to use static folder
+# Debug prints for directory checking
+project_dir = settings.BASE_DIR
+print(f"Project directory: {project_dir}")
+
+# Get glasses from static folder
 glasses_dir = os.path.join(settings.BASE_DIR, 'virtualtryon', 'static', 'virtualtryon', 'glasses')
+print(f"Looking for glasses in: {glasses_dir}")
+
 glasses_files = []
 if os.path.exists(glasses_dir):
     glasses_files = [f for f in os.listdir(glasses_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
     glasses_files.sort()
+    print(f"Found glasses files: {glasses_files}")
 
 glasses_list = [os.path.join(glasses_dir, f) for f in glasses_files]
 current_glasses_index = 0
@@ -163,169 +175,186 @@ class FaceAnalyzer:
 # Create a global instance of FaceAnalyzer
 face_analyzer = FaceAnalyzer()
 
-def apply_glasses(frame, landmarks, glasses):
-    if glasses is None:
-        return frame
-
-    h, w, _ = frame.shape
-    left_eye = landmarks[33]
-    right_eye = landmarks[263]
-
-    left_eye = (int(left_eye.x * w), int(left_eye.y * h))
-    right_eye = (int(right_eye.x * w), int(right_eye.y * h))
-
-    eye_center = ((left_eye[0] + right_eye[0]) // 2, (left_eye[1] + right_eye[1]) // 2)
-    eye_width = abs(right_eye[0] - left_eye[0])
-    scaling_factor = eye_width / glasses.shape[1] * 1.7
-
-    resized_glasses = cv2.resize(glasses, None, fx=scaling_factor, fy=scaling_factor)
-    x_offset = eye_center[0] - resized_glasses.shape[1] // 2
-    y_offset = eye_center[1] - resized_glasses.shape[0] // 2 - 5
-
-    for c in range(3):
-        frame[y_offset:y_offset+resized_glasses.shape[0], x_offset:x_offset+resized_glasses.shape[1], c] = \
-            frame[y_offset:y_offset+resized_glasses.shape[0], x_offset:x_offset+resized_glasses.shape[1], c] * \
-            (1 - resized_glasses[:, :, 3] / 255.0) + \
-            resized_glasses[:, :, c] * (resized_glasses[:, :, 3] / 255.0)
-    return frame
-
-def calculate_face_shape(landmarks, image_width, image_height):
+def apply_glasses(image, landmarks, glasses_path):
     try:
-        # Convert landmarks to numpy array of (x,y) coordinates
-        points = []
-        for landmark in landmarks:
-            points.append([landmark.x * image_width, landmark.y * image_height])
-        points = np.array(points)
+        # Read the glasses image
+        glasses = cv2.imread(glasses_path, cv2.IMREAD_UNCHANGED)
+        if glasses is None:
+            return None
+
+        # Get facial landmarks for glasses placement
+        image_height, image_width = image.shape[:2]
         
-        # Calculate face measurements
-        # Jawline width (distance between ear points)
-        jaw_width = np.linalg.norm(points[234] - points[454])
+        # Get coordinates for eyes
+        left_eye = np.mean([[landmarks[33].x * image_width, landmarks[33].y * image_height],
+                           [landmarks[133].x * image_width, landmarks[133].y * image_height]], axis=0)
+        right_eye = np.mean([[landmarks[362].x * image_width, landmarks[362].y * image_height],
+                            [landmarks[263].x * image_width, landmarks[263].y * image_height]], axis=0)
+
+        # Calculate angle for rotation
+        dY = right_eye[1] - left_eye[1]
+        dX = right_eye[0] - left_eye[0]
+        angle = np.degrees(np.arctan2(dY, dX))
+
+        # Calculate distance between eyes for scaling
+        eye_distance = np.sqrt((right_eye[0] - left_eye[0])**2 + (right_eye[1] - left_eye[1])**2)
         
-        # Face length (forehead to chin)
-        face_length = np.linalg.norm(points[10] - points[152])
+        # Scale glasses based on eye distance
+        glasses_width = glasses.shape[1]
+        scale_factor = eye_distance / (glasses_width * 0.4)  # Adjust 0.4 to change glasses size
         
-        # Cheekbone width
-        cheekbone_width = np.linalg.norm(points[123] - points[352])
+        # Resize glasses
+        new_width = int(glasses.shape[1] * scale_factor)
+        new_height = int(glasses.shape[0] * scale_factor)
+        glasses = cv2.resize(glasses, (new_width, new_height))
+
+        # Rotate glasses
+        center = (glasses.shape[1] // 2, glasses.shape[0] // 2)
+        rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
+        glasses = cv2.warpAffine(glasses, rotation_matrix, (glasses.shape[1], glasses.shape[0]))
+
+        # Calculate position to place glasses
+        glasses_center_x = int(left_eye[0] + (right_eye[0] - left_eye[0]) / 2)
+        glasses_center_y = int(left_eye[1] + (right_eye[1] - left_eye[1]) / 2)
         
-        # Determine face shape based on proportions
-        ratio_width_length = jaw_width / face_length
-        ratio_cheekbone_jaw = cheekbone_width / jaw_width
-        
-        # Store measurements for debugging
-        measurements = {
-            'jaw_width': jaw_width,
-            'face_length': face_length,
-            'cheekbone_width': cheekbone_width,
-            'ratio_width_length': ratio_width_length,
-            'ratio_cheekbone_jaw': ratio_cheekbone_jaw
-        }
-        
-        if ratio_width_length < 0.75:
-            shape = 'rectangular'
-        elif ratio_width_length > 0.85 and ratio_cheekbone_jaw < 1.1:
-            shape = 'round'
-        elif ratio_width_length > 0.85 and ratio_cheekbone_jaw >= 1.1:
-            shape = 'heart'
-        elif ratio_width_length >= 0.75 and ratio_width_length <= 0.85:
-            shape = 'oval'
-        else:
-            shape = 'square'
-                
-        return {
-            'shape': shape,
-            'measurements': measurements
-        }
-                
+        # Calculate top-left corner for glasses placement
+        x_offset = int(glasses_center_x - glasses.shape[1] / 2)
+        y_offset = int(glasses_center_y - glasses.shape[0] / 2)
+
+        # Ensure offsets are within image bounds
+        if x_offset < 0: x_offset = 0
+        if y_offset < 0: y_offset = 0
+
+        # Create a region of interest (ROI)
+        roi = image[y_offset:min(y_offset + glasses.shape[0], image.shape[0]),
+                   x_offset:min(x_offset + glasses.shape[1], image.shape[1])]
+
+        # Create a mask for the glasses
+        if glasses.shape[2] == 4:  # If glasses image has an alpha channel
+            glasses_alpha = glasses[:roi.shape[0], :roi.shape[1], 3] / 255.0
+            glasses_rgb = glasses[:roi.shape[0], :roi.shape[1], :3]
+
+            # Blend the glasses with the ROI
+            for c in range(3):  # For each color channel
+                roi[:, :, c] = roi[:, :, c] * (1 - glasses_alpha) + glasses_rgb[:, :, c] * glasses_alpha
+
+        return image
+
     except Exception as e:
-        print(f"Error calculating face shape: {str(e)}")
-        return {
-            'shape': 'unknown',
-            'measurements': {}
+        print(f"Error in apply_glasses: {str(e)}")
+        return None
+
+def calculate_face_shape(landmarks, width, height):
+    # Convert landmarks to numpy array of coordinates
+    points = np.array([[landmark.x * width, landmark.y * height] for landmark in landmarks])
+    
+    # Get face measurements
+    face_width = np.linalg.norm(points[234] - points[454])  # Distance between ears
+    face_height = np.linalg.norm(points[10] - points[152])  # Distance from chin to forehead
+    jaw_width = np.linalg.norm(points[132] - points[361])   # Jawline width
+    cheek_width = np.linalg.norm(points[123] - points[352]) # Width at cheekbones
+    
+    # Calculate ratios
+    width_height_ratio = face_width / face_height
+    jaw_cheek_ratio = jaw_width / cheek_width
+    
+    # Determine face shape based on ratios
+    if width_height_ratio > 0.85:
+        if jaw_cheek_ratio > 0.9:
+            shape = "Square"
+        else:
+            shape = "Round"
+    else:
+        if jaw_cheek_ratio > 0.9:
+            shape = "Rectangle"
+        else:
+            shape = "Oval"
+    
+    return {
+        'shape': shape,
+        'measurements': {
+            'width_height_ratio': float(width_height_ratio),
+            'jaw_cheek_ratio': float(jaw_cheek_ratio)
         }
+    }
 
 def analyze_skin_tone(image, landmarks):
-    try:
-        # Convert image to RGB
-        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    # Convert landmarks to pixel coordinates
+    height, width = image.shape[:2]
+    cheek_points = [
+        landmarks[123],  # Left cheek
+        landmarks[352]   # Right cheek
+    ]
+    
+    # Sample skin tone from cheek areas
+    samples = []
+    for point in cheek_points:
+        x, y = int(point.x * width), int(point.y * height)
+        # Sample a small region around the point
+        region = image[max(0, y-5):min(height, y+5), max(0, x-5):min(width, x+5)]
+        if region.size > 0:
+            samples.append(np.mean(region, axis=(0, 1)))
+    
+    if samples:
+        # Average the samples
+        avg_color = np.mean(samples, axis=0)
+        # Convert BGR to HSV for better color analysis
+        hsv_color = cv2.cvtColor(np.uint8([[avg_color]]), cv2.COLOR_BGR2HSV)[0][0]
         
-        # Extract skin tone from forehead area
-        forehead_landmark = landmarks[151]  # Center of forehead
-        x, y = int(forehead_landmark.x * image.shape[1]), int(forehead_landmark.y * image.shape[0])
-        
-        # Sample area around forehead point
-        sample_size = 20
-        x1, y1 = max(0, x - sample_size), max(0, y - sample_size)
-        x2, y2 = min(image.shape[1], x + sample_size), min(image.shape[0], y + sample_size)
-        
-        skin_sample = image_rgb[y1:y2, x1:x2]
-        average_color = np.mean(skin_sample, axis=(0,1))
-        
-        # Classify skin tone
-        r, g, b = average_color
-        luminance = 0.299 * r + 0.587 * g + 0.114 * b
-        
-        if luminance > 200:
-            tone = 'fair'
-        elif luminance > 170:
-            tone = 'light'
-        elif luminance > 140:
-            tone = 'medium'
-        elif luminance > 100:
-            tone = 'olive'
+        # Determine skin tone based on value and saturation
+        if hsv_color[2] > 200:  # Value
+            tone = "Fair"
+        elif hsv_color[2] > 150:
+            tone = "Medium"
         else:
-            tone = 'dark'
-            
-        return {
-            'tone': tone,
-            'rgb': (r, g, b),
-            'luminance': luminance
-        }
-                
-    except Exception as e:
-        print(f"Error analyzing skin tone: {str(e)}")
-        return {'tone': 'unknown', 'rgb': (0,0,0), 'luminance': 0}
+            tone = "Dark"
+    else:
+        tone = "Medium"  # Default if sampling fails
+    
+    return {
+        'tone': tone,
+        'rgb': [int(c) for c in avg_color]
+    }
 
 def get_glasses_recommendations(face_shape, skin_tone):
     recommendations = {
-        'round': {
-            'recommended': ['glasses2', 'glasses4', 'glasses7', 'glasses9'],
-            'reason': 'Angular and rectangular frames help balance round face features'
+        'Square': {
+            'shapes': ['Round', 'Oval', 'Aviator'],
+            'colors': {
+                'Fair': ['Gold', 'Brown', 'Blue'],
+                'Medium': ['Silver', 'Brown', 'Green'],
+                'Dark': ['Gold', 'Silver', 'Brown']
+            }
         },
-        'square': {
-            'recommended': ['glasses1', 'glasses3', 'glasses5', 'glasses8'],
-            'reason': 'Rounded and oval frames soften angular features'
+        'Round': {
+            'shapes': ['Rectangle', 'Square', 'Wayframe'],
+            'colors': {
+                'Fair': ['Black', 'Silver', 'Blue'],
+                'Medium': ['Brown', 'Gold', 'Green'],
+                'Dark': ['Silver', 'Gold', 'Black']
+            }
         },
-        'oval': {
-            'recommended': ['glasses1', 'glasses2', 'glasses3', 'glasses4', 'glasses5'],
-            'reason': 'Most frame styles complement oval face shapes well'
+        'Oval': {
+            'shapes': ['Any Shape Works Well', 'Square', 'Rectangle'],
+            'colors': {
+                'Fair': ['Brown', 'Black', 'Silver'],
+                'Medium': ['Gold', 'Brown', 'Green'],
+                'Dark': ['Gold', 'Silver', 'Black']
+            }
         },
-        'heart': {
-            'recommended': ['glasses3', 'glasses6', 'glasses8', 'glasses9'],
-            'reason': 'Bottom-heavy and oval frames balance heart-shaped faces'
-        },
-        'rectangular': {
-            'recommended': ['glasses1', 'glasses5', 'glasses7', 'glasses8'],
-            'reason': 'Curved and rounded frames help soften angular features'
+        'Rectangle': {
+            'shapes': ['Round', 'Oval', 'Butterfly'],
+            'colors': {
+                'Fair': ['Gold', 'Brown', 'Blue'],
+                'Medium': ['Silver', 'Black', 'Brown'],
+                'Dark': ['Gold', 'Silver', 'Black']
+            }
         }
     }
-
-    color_advice = {
-        'fair': 'Consider darker frames for contrast, try glasses4 or glasses7',
-        'light': 'Most frame colors work well, especially glasses2, glasses5, and glasses8',
-        'medium': 'Both light and dark frames complement your tone, try glasses3 or glasses6',
-        'olive': 'Gold or brown tones enhance your complexion, consider glasses5 or glasses9',
-        'dark': 'Bold colored frames create striking contrast, try glasses1 or glasses7'
-    }
-
-    base_rec = recommendations.get(face_shape, {
-        'recommended': ['glasses1', 'glasses2', 'glasses3'],
-        'reason': 'Classic frame styles that suit most face shapes'
-    })
-
+    
     return {
-        'frames': base_rec['recommended'][:3],  # Get top 3 frames
-        'shape_advice': base_rec['reason'],
-        'color_advice': color_advice.get(skin_tone, 'Various frame colors can work for you')
+        'recommended_shapes': recommendations[face_shape]['shapes'],
+        'recommended_colors': recommendations[face_shape]['colors'][skin_tone]
     }
 
 def score_glasses(user_attrs, frame_attrs):
@@ -506,8 +535,8 @@ def generate_frames():
             
             if results.multi_face_landmarks:
                 # Apply glasses if face is detected
-                landmarks = results.multi_face_landmarks[0].landmark
-                frame = apply_glasses(frame, landmarks, glasses_list[current_glasses_index])
+                landmarks = results.multi_face_landmarks[0]
+                frame = apply_glasses(frame, landmarks.landmark, glasses_list[current_glasses_index])
             
             # Convert frame to bytes
             ret, buffer = cv2.imencode('.jpg', frame)
@@ -541,22 +570,41 @@ def reset_camera(request):
 
 def upload_image(request):
     if request.method == 'POST':
-        if 'image' in request.FILES:
+        if 'glasses_index' in request.POST:
+            # Handle glasses switching
+            glasses_index = int(request.POST['glasses_index'])
+            if 'last_uploaded_image' in request.session:
+                image_path = request.session['last_uploaded_image']
+                image = cv2.imread(image_path)
+                if image is not None:
+                    results = face_mesh.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+                    if results.multi_face_landmarks:
+                        landmarks = results.multi_face_landmarks[0]
+                        processed_image = apply_glasses(image, landmarks.landmark, glasses_list[glasses_index])
+                        if processed_image is not None:
+                            fs = FileSystemStorage()
+                            filename = os.path.basename(image_path)
+                            output_path = fs.path('processed_' + filename)
+                            cv2.imwrite(output_path, processed_image)
+                            return JsonResponse({'processed_url': fs.url('processed_' + filename)})
+            return JsonResponse({'error': 'Failed to process image'})
+        
+        elif 'image' in request.FILES:
             # Handle new image upload
             uploaded_file = request.FILES['image']
             fs = FileSystemStorage()
             filename = fs.save(uploaded_file.name, uploaded_file)
-            request.session['last_uploaded_image'] = fs.path(filename)
+            file_path = fs.path(filename)
+            request.session['last_uploaded_image'] = file_path
             
-            image = cv2.imread(fs.path(filename))
+            image = cv2.imread(file_path)
             if image is not None:
                 results = face_mesh.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
                 if results.multi_face_landmarks:
                     landmarks = results.multi_face_landmarks[0]
-                    height, width = image.shape[:2]
                     
-                    # Use FaceAnalyzer for analysis
-                    face_shape = face_analyzer.calculate_face_shape(landmarks, width, height)
+                    # Get face analysis
+                    face_shape = face_analyzer.calculate_face_shape(landmarks, image.shape[1], image.shape[0])
                     skin_tone = face_analyzer.analyze_skin_tone(image, landmarks)
                     recommendations = face_analyzer.get_glasses_recommendations(face_shape, skin_tone)
                     
@@ -571,52 +619,13 @@ def upload_image(request):
                             'skin_tone': skin_tone,
                             'recommendations': recommendations
                         })
-        
-        elif 'glasses_index' in request.POST:
-            # Handle glasses switching
-            glasses_index = int(request.POST['glasses_index'])
-            if 'last_uploaded_image' in request.session:
-                image_path = request.session['last_uploaded_image']
-                image = cv2.imread(image_path)
-                if image is not None:
-                    results = face_mesh.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-                    if results.multi_face_landmarks:
-                        landmarks = results.multi_face_landmarks[0].landmark
-                        processed_image = apply_glasses(image, landmarks, glasses_list[glasses_index])
-                        if processed_image is not None:
-                            fs = FileSystemStorage()
-                            filename = os.path.basename(image_path)
-                            output_path = fs.path('processed_' + filename)
-                            cv2.imwrite(output_path, processed_image)
-                            return JsonResponse({'processed_url': fs.url('processed_' + filename)})
-            return JsonResponse({'error': 'Failed to process image'})
     
     return JsonResponse({'error': 'Invalid request'})
 
 def index(request):
-    return render(request, 'virtualtryon/home.html', {
-        'glasses_files': [os.path.basename(f) for f in glasses_files],
-        'glasses_range': range(len(glasses_list))
-    })
-
-def webcam_try_on(request):
-    """
-    View function for the webcam try-on page
-    """
-    return render(request, 'virtualtryon/webcam.html', {
-        'glasses_files': [os.path.basename(f) for f in glasses_files],
-        'glasses_range': range(len(glasses_list))
-    })
+    return render(request, 'virtualtryon/home.html')
 
 def try_on(request):
-    glasses_dir = os.path.expanduser('~/Desktop/myglasses')
-    glasses_files = []
-    if os.path.exists(glasses_dir):
-        glasses_files = [f for f in os.listdir(glasses_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
-        glasses_files.sort()
-    
-    glasses_list = [os.path.join(glasses_dir, f) for f in glasses_files]
-    
     return render(request, 'virtualtryon/try_on.html', {
         'glasses_files': glasses_files,
         'glasses_list': glasses_list,
@@ -638,3 +647,10 @@ def contact(request):
 
 def about(request):
     return render(request, 'virtualtryon/about.html')
+
+def webcam_try_on(request):
+    return render(request, 'virtualtryon/webcam.html', {
+        'glasses_files': glasses_files,
+        'glasses_list': glasses_list,
+        'glasses_range': range(len(glasses_files))
+    })
