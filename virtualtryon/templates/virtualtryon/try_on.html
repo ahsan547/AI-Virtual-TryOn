@@ -11,12 +11,47 @@
         <div class="lg:col-span-1">
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-semibold mb-4">Select Glasses</h2>
-                <div class="grid grid-cols-2 gap-4">
+                <!-- Add this explanation above the glasses grid -->
+                <div class="mb-4 text-gray-600 italic">
+                    After uploading your photo, the top 3 recommended frames for your face shape will be highlighted in blue.
+                </div>
+                <!-- First, add this right after your main glasses grid but before recommendations -->
+                <div class="mt-8 border-t pt-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                        </svg>
+                        Your Favorites
+                    </h2>
+                    <div id="favorites-container" class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+                        <!-- Favorites will be added here dynamically -->
+                    </div>
+                    <div id="no-favorites" class="text-gray-500 italic text-center py-4">
+                        No favorites saved yet. Click the heart icon on any glasses to save them here.
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
                     {% for i in glasses_range %}
-                    <div class="cursor-pointer hover:opacity-75" onclick="selectGlasses({{ i }})">
+                    <div class="cursor-pointer glasses-option bg-white rounded-lg shadow p-4 relative" 
+                         data-index="{{ i }}">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <span class="text-lg font-semibold text-blue-600 mr-2">{{ i|add:1 }}.</span>
+                                <span class="text-gray-600">Glasses {{ i|add:1 }}</span>
+                            </div>
+                            <button class="favorite-btn p-2 hover:text-red-500 transition-colors"
+                                    onclick="toggleFavorite(event, {{ i }})">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
                         <img src="{% static 'virtualtryon/glasses/' %}{{ glasses_files|index:i }}" 
-                             alt="Glasses {{ i }}" 
-                             class="w-full rounded border p-2">
+                             alt="Glasses {{ i|add:1 }}" 
+                             class="w-full rounded border p-2 hover:shadow-lg transition-shadow"
+                             onclick="selectGlasses({{ i }})">
                     </div>
                     {% endfor %}
                 </div>
@@ -77,11 +112,34 @@
         </div>
     </div>
 </div>
+
+<style>
+.glasses-option {
+    transition: all 0.3s ease;
+}
+.glasses-option.recommended {
+    transform: scale(1.02);
+}
+.recommendation-badge {
+    font-size: 0.75rem;
+    z-index: 10;
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
 <script>
 let webcamActive = false;
+
+// Store glasses data
+const glassesData = {
+    files: [
+        {% for file in glasses_files %}
+            "{{ file }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ],
+    total: {{ glasses_files|length }}
+};
 
 function selectGlasses(index) {
     console.log("Selecting glasses index:", index);
@@ -189,20 +247,125 @@ window.addEventListener('beforeunload', function() {
 function updateRecommendations(data) {
     const recommendationsDiv = document.getElementById('recommendations');
     if (data.face_shape && data.skin_tone && data.recommendations) {
-        // Update face analysis
+        // Update face analysis and recommendations as before
         document.getElementById('faceShape').textContent = `Face Shape: ${data.face_shape}`;
         document.getElementById('skinTone').textContent = `Skin Tone: ${data.skin_tone}`;
-        
-        // Update recommendations
         document.getElementById('shapeAdvice').textContent = data.recommendations.shape_advice;
         document.getElementById('colorAdvice').textContent = data.recommendations.color_advice;
-        document.getElementById('recommendedFrames').textContent = 
-            `Recommended Frames: ${data.recommendations.frames.join(', ')}`;
         
         // Show the recommendations section
         recommendationsDiv.classList.remove('hidden');
+        
+        // Highlight recommended glasses
+        const allGlasses = document.querySelectorAll('.glasses-option');
+        allGlasses.forEach(glass => {
+            glass.classList.remove('ring-2', 'ring-blue-500', 'recommended');
+            glass.querySelector('.recommendation-badge')?.remove();
+        });
+        
+        // Get top 3 recommendations
+        const topRecommendations = data.recommendations.frames.slice(0, 3);
+        topRecommendations.forEach((frame, index) => {
+            const frameNumber = parseInt(frame.replace('glasses', ''));
+            const glassElement = document.querySelector(`.glasses-option[data-index="${frameNumber - 1}"]`);
+            if (glassElement) {
+                glassElement.classList.add('ring-2', 'ring-blue-500', 'recommended');
+                const badge = document.createElement('div');
+                badge.className = 'recommendation-badge absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded-full text-sm';
+                badge.textContent = `Top ${index + 1}`;
+                glassElement.appendChild(badge);
+            }
+        });
     }
 }
+
+// Initialize favorites from localStorage
+let favorites = JSON.parse(localStorage.getItem('glassesFavorites') || '[]');
+
+// Function to toggle favorite status
+function toggleFavorite(event, index) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    const isFavorite = favorites.includes(index);
+    
+    if (isFavorite) {
+        // Remove from favorites
+        favorites = favorites.filter(i => i !== index);
+        // Update heart color in both main grid and favorites section
+        const allHearts = document.querySelectorAll(`.glasses-option[data-index="${index}"] .favorite-btn`);
+        allHearts.forEach(heart => {
+            heart.classList.remove('text-red-500');
+            heart.querySelector('svg').classList.remove('fill-current');
+        });
+    } else {
+        // Add to favorites
+        favorites.push(index);
+        btn.classList.add('text-red-500');
+        btn.querySelector('svg').classList.add('fill-current');
+    }
+    
+    localStorage.setItem('glassesFavorites', JSON.stringify(favorites));
+    updateFavoritesDisplay();
+}
+
+// Function to update the favorites display
+function updateFavoritesDisplay() {
+    const container = document.getElementById('favorites-container');
+    const noFavorites = document.getElementById('no-favorites');
+    
+    if (!container || !noFavorites) {
+        console.error('Favorites containers not found');
+        return;
+    }
+    
+    if (favorites.length === 0) {
+        container.innerHTML = '';
+        noFavorites.style.display = 'block';
+        // Reset all hearts to default state
+        const allHearts = document.querySelectorAll('.favorite-btn');
+        allHearts.forEach(heart => {
+            heart.classList.remove('text-red-500');
+            heart.querySelector('svg').classList.remove('fill-current');
+        });
+        return;
+    }
+    
+    noFavorites.style.display = 'none';
+    container.innerHTML = favorites.map(index => `
+        <div class="bg-white rounded-lg shadow p-4 relative">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-gray-600">Glasses ${index + 1}</span>
+                <button class="p-2 text-red-500 hover:text-red-700 transition-colors favorite-btn"
+                        onclick="toggleFavorite(event, ${index})">
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <img src="{% static 'virtualtryon/glasses/' %}${glassesData.files[index]}"
+                 alt="Glasses ${index + 1}"
+                 class="w-full rounded border p-2 cursor-pointer"
+                 onclick="selectGlasses(${index})">
+        </div>
+    `).join('');
+}
+
+// Initialize favorites display and buttons on page load
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Page loaded, initializing favorites...');
+    updateFavoritesDisplay();
+    
+    // Set initial state of favorite buttons
+    favorites.forEach(index => {
+        const btn = document.querySelector(`.glasses-option[data-index="${index}"] .favorite-btn`);
+        if (btn) {
+            btn.classList.add('text-red-500');
+            btn.querySelector('svg').classList.add('fill-current');
+        }
+    });
+});
 </script>
 {% endblock %}
 
