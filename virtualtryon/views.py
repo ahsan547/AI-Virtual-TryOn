@@ -225,7 +225,7 @@ def apply_glasses(image, landmarks, glasses_path):
         if x_offset < 0: x_offset = 0
         if y_offset < 0: y_offset = 0
 
-        # Create a region of interest (ROI)
+        # Create a region of interest
         roi = image[y_offset:min(y_offset + glasses.shape[0], image.shape[0]),
                    x_offset:min(x_offset + glasses.shape[1], image.shape[1])]
 
@@ -234,7 +234,7 @@ def apply_glasses(image, landmarks, glasses_path):
             glasses_alpha = glasses[:roi.shape[0], :roi.shape[1], 3] / 255.0
             glasses_rgb = glasses[:roi.shape[0], :roi.shape[1], :3]
 
-            # Blend the glasses with the ROI
+            # Blend the glasses with the reigon of interest
             for c in range(3):  # For each color channel
                 roi[:, :, c] = roi[:, :, c] * (1 - glasses_alpha) + glasses_rgb[:, :, c] * glasses_alpha
 

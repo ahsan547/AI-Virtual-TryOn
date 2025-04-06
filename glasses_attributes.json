@@ -1,55 +1,67 @@
 {
     "glasses9.png": {
         "shape": "rectangular",
-        "color_category": "black",
-        "frame_width": "medium",
+        "color_category": "neutral",
+        "frame_width": "wide",
         "style": "modern"
     },
     "glasses8.png": {
-        "shape": "cat-eye",
-        "color_category": "gold",
-        "frame_width": "narrow",
+        "shape": "rectangular",
+        "color_category": "neutral",
+        "frame_width": "wide",
         "style": "modern"
+    },
+    "glasses10.png": {
+        "shape": "round",
+        "color_category": "neutral",
+        "frame_width": "wide",
+        "style": "classic"
     },
     "glasses3.png": {
         "shape": "rectangular",
-        "color_category": "silver",
+        "color_category": "neutral",
         "frame_width": "wide",
         "style": "modern"
     },
     "glasses2.png": {
         "shape": "round",
-        "color_category": "tortoise",
-        "frame_width": "medium",
+        "color_category": "neutral",
+        "frame_width": "wide",
         "style": "classic"
     },
+    "glasses11.png": {
+        "shape": "rectangular",
+        "color_category": "neutral",
+        "frame_width": "wide",
+        "style": "modern"
+    },
     "glasses1.png": {
-        "shape": "oval",
-        "color_category": "brown",
-        "frame_width": "narrow",
+        "shape": "round",
+        "color_category": "neutral",
+        "frame_width": "wide",
         "style": "classic"
     },
     "glasses5.png": {
-        "shape": "geometric",
-        "color_category": "black",
-        "frame_width": "medium",
-        "style": "modern"
+        "shape": "round",
+        "color_category": "neutral",
+        "frame_width": "wide",
+        "style": "classic"
     },
     "glasses4.png": {
         "shape": "round",
-        "color_category": "gold",
-        "frame_width": "narrow",
+        "color_category": "neutral",
+        "frame_width": "wide",
         "style": "classic"
     },
     "glasses6.png": {
-        "shape": "cat-eye",
-        "color_category": "silver",
-        "frame_width": "medium",
+        "shape": "rectangular",
+        "color_category": "neutral",
+        "frame_width": "wide",
         "style": "modern"
     },
     "glasses7.png": {
         "shape": "rectangular",
-        "color_category": "tortoise",
+        "color_category": "neutral",
         "frame_width": "wide",
         "style": "modern"
     }

@@ -79,7 +79,7 @@ def extract_frame_attributes(frame_path):
         "style": style
     }
 
-glasses_dir = "/Users/ahsanmalik/Desktop/myglasses/"
+glasses_dir = "virtualtryon/static/virtualtryon/glasses/"
 glasses_data = {}
 
 for frame_file in os.listdir(glasses_dir):
