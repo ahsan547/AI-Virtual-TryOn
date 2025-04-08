@@ -5,24 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VirtualTryOn</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {},
+            },
+        }
+    </script>
+    <script>
+        // Initialize theme to light mode by default
+        if (localStorage.theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+        }
+    </script>
 </head>
-<body class="bg-gray-100">
-    <!-- Updated header with white background -->
-    <header class="bg-white shadow-lg">
+<body class="bg-gray-100 dark:bg-gray-900">
+    <!-- Updated header with dark mode toggle -->
+    <header class="bg-white dark:bg-gray-800 shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo and Slogan -->
                 <div class="flex items-center space-x-8">
-                    <h1 class="text-2xl font-bold text-blue-600">VirtualTryOn</h1>
-                    <p class="hidden md:block text-lg font-light italic tracking-wide text-gray-600">
+                    <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400">VirtualTryOn</h1>
+                    <p class="hidden md:block text-lg font-light italic tracking-wide text-gray-600 dark:text-gray-300">
                         Styled for You, Perfected by AI
                     </p>
                 </div>
-                <div class="hidden md:flex space-x-8">
-                    <a href="{% url 'home' %}" class="text-gray-600 hover:text-gray-900">Home</a>
-                    <a href="{% url 'tryon' %}" class="text-gray-600 hover:text-gray-900">Try On</a>
-                    <a href="{% url 'about' %}" class="text-gray-600 hover:text-gray-900">About</a>
-                    <a href="{% url 'contact' %}" class="text-gray-600 hover:text-gray-900">Contact</a>
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg id="sun-icon" class="w-6 h-6 text-gray-800 dark:text-gray-200 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <svg id="moon-icon" class="w-6 h-6 text-gray-800 dark:text-gray-200 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                    <div class="hidden md:flex space-x-8">
+                        <a href="{% url 'home' %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Home</a>
+                        <a href="{% url 'tryon' %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Try On</a>
+                        <a href="{% url 'about' %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">About</a>
+                        <a href="{% url 'contact' %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Contact</a>
+                    </div>
                 </div>
                 <button class="md:hidden" onclick="toggleMobileMenu()">
                     <i class="fas fa-bars"></i>
@@ -31,13 +58,13 @@
             <!-- Mobile Menu -->
             <div id="mobileMenu" class="hidden md:hidden mt-4">
                 <div class="flex flex-col space-y-4">
-                    <a href="{% url 'home' %}" class="text-gray-600 hover:text-gray-900">Home</a>
-                    <a href="{% url 'tryon' %}" class="text-gray-600 hover:text-gray-900">Try On</a>
-                    <a href="{% url 'about' %}" class="text-gray-600 hover:text-gray-900">About</a>
-                    <a href="{% url 'contact' %}" class="text-gray-600 hover:text-gray-900">Contact</a>
+                    <a href="{% url 'home' %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Home</a>
+                    <a href="{% url 'tryon' %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Try On</a>
+                    <a href="{% url 'about' %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">About</a>
+                    <a href="{% url 'contact' %}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Contact</a>
                 </div>
             </div>
-        </nav>
+        </div>
     </header>
 
     <!-- Main Content -->
@@ -46,7 +73,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white">
+    <footer class="bg-gray-800 dark:bg-gray-900 text-white">
         <div class="container mx-auto px-4 py-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
@@ -86,6 +113,25 @@
     </footer>
 
     <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+
+        themeToggle.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        });
+
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             menu.classList.toggle('hidden');

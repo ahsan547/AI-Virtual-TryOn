@@ -2,96 +2,179 @@
 {% load static %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-16">
-    <!-- Hero Section -->
-    <div class="max-w-4xl mx-auto text-center mb-16">
-        <h1 class="text-4xl font-bold mb-6">About Our Virtual Try-On System</h1>
-        <p class="text-xl text-gray-600">Experience the future of eyewear shopping with our AI-powered virtual try-on technology.</p>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
+  <!-- Hero Section -->
+  <div class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 transform -skew-y-6"></div>
+    <div class="absolute inset-0 bg-[url('{% static 'virtualtryon/images/pattern.svg' %}')] opacity-10"></div>
+    <div class="relative container mx-auto px-4 py-16">
+      <div class="text-center">
+        <h1 class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 mb-4">
+          About Us
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Revolutionizing the way you try on glasses with AI-powered technology
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 py-8">
+    <!-- Our Mission -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-100/20 dark:border-gray-700/20 transform transition-all duration-300 hover:scale-[1.02] mb-8">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+          <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Our Mission</h2>
+      </div>
+      <p class="text-gray-600 dark:text-gray-300">
+        At Virtual Try-On, we're dedicated to revolutionizing the eyewear shopping experience. Our mission is to make finding the perfect pair of glasses as easy and enjoyable as possible, using cutting-edge AI technology to provide accurate and realistic virtual try-ons.
+      </p>
     </div>
 
-    <!-- Features Section -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-        <div class="bg-white rounded-lg shadow-md p-6 text-center">
-            <div class="text-4xl text-blue-600 mb-4">
-                <i class="fas fa-camera"></i>
-            </div>
-            <h3 class="text-xl font-semibold mb-3">Advanced AI Technology</h3>
-            <p class="text-gray-600">Using state-of-the-art facial recognition and 3D modeling to provide accurate virtual try-ons.</p>
+    <!-- Our Technology -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-100/20 dark:border-gray-700/20 transform transition-all duration-300 hover:scale-[1.02] mb-8">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+          <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-6 text-center">
-            <div class="text-4xl text-blue-600 mb-4">
-                <i class="fas fa-glasses"></i>
-            </div>
-            <h3 class="text-xl font-semibold mb-3">Wide Selection</h3>
-            <p class="text-gray-600">Browse through hundreds of frames and try them on virtually in real-time.</p>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Our Technology</h2>
+      </div>
+      <p class="text-gray-600 dark:text-gray-300">
+        We leverage advanced computer vision and machine learning algorithms to provide accurate face detection, feature analysis, and realistic virtual try-ons. Our technology ensures that the glasses you see on your face match how they would look in real life.
+      </p>
+    </div>
+
+    <!-- Our Team -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-100/20 dark:border-gray-700/20 transform transition-all duration-300 hover:scale-[1.02] mb-8">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
+          <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-6 text-center">
-            <div class="text-4xl text-blue-600 mb-4">
-                <i class="fas fa-magic"></i>
-            </div>
-            <h3 class="text-xl font-semibold mb-3">Smart Recommendations</h3>
-            <p class="text-gray-600">Get personalized frame suggestions based on your face shape and skin tone.</p>
-        </div>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Our Team</h2>
+      </div>
+      <p class="text-gray-600 dark:text-gray-300">
+        Our team consists of passionate developers, designers, and AI experts who are dedicated to creating the best virtual try-on experience. We combine expertise in computer vision, machine learning, and user experience design to deliver innovative solutions.
+      </p>
     </div>
 
     <!-- How It Works -->
-    <div class="bg-white rounded-lg shadow-md p-8 mb-16">
-        <h2 class="text-3xl font-bold text-center mb-8">How It Works</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div class="text-center">
-                <div class="text-3xl font-bold text-blue-600 mb-4">Step 1</div>
-                <h3 class="font-semibold mb-2">Upload or Use Webcam</h3>
-                <p class="text-gray-600">Take a photo or use your webcam for real-time try-on.</p>
-            </div>
-            <div class="text-center">
-                <div class="text-3xl font-bold text-blue-600 mb-4">Step 2</div>
-                <h3 class="font-semibold mb-2">Face Analysis</h3>
-                <p class="text-gray-600">Our AI analyzes your face shape and features.</p>
-            </div>
-            <div class="text-center">
-                <div class="text-3xl font-bold text-blue-600 mb-4">Step 3</div>
-                <h3 class="font-semibold mb-2">Try On Frames</h3>
-                <p class="text-gray-600">Virtually try on different frames instantly.</p>
-            </div>
-            <div class="text-center">
-                <div class="text-3xl font-bold text-blue-600 mb-4">Step 4</div>
-                <h3 class="font-semibold mb-2">Get Recommendations</h3>
-                <p class="text-gray-600">Receive personalized frame suggestions.</p>
-            </div>
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-100/20 dark:border-gray-700/20 transform transition-all duration-300 hover:scale-[1.02] mb-8">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg">
+          <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
         </div>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">How It Works</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white/50 dark:bg-gray-700/50 rounded-xl p-6 border border-gray-100/20 dark:border-gray-600/20 transform transition-all duration-300 hover:scale-105">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Upload Your Photo</h3>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">Upload a clear photo of your face or use your webcam for instant try-on.</p>
+        </div>
+
+        <div class="bg-white/50 dark:bg-gray-700/50 rounded-xl p-6 border border-gray-100/20 dark:border-gray-600/20 transform transition-all duration-300 hover:scale-105">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+              <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">AI Analysis</h3>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">Our AI analyzes your facial features to ensure perfect fit and style recommendations.</p>
+        </div>
+
+        <div class="bg-white/50 dark:bg-gray-700/50 rounded-xl p-6 border border-gray-100/20 dark:border-gray-600/20 transform transition-all duration-300 hover:scale-105">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
+              <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Try On Glasses</h3>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">Browse our collection and see how different frames look on your face in real-time.</p>
+        </div>
+
+        <div class="bg-white/50 dark:bg-gray-700/50 rounded-xl p-6 border border-gray-100/20 dark:border-gray-600/20 transform transition-all duration-300 hover:scale-105">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg">
+              <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Get Recommendations</h3>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">Receive personalized recommendations based on your face shape and style preferences.</p>
+        </div>
+      </div>
     </div>
 
-    <!-- Technology Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-bold mb-4">Our Technology</h2>
-            <p class="text-gray-600 mb-4">Our virtual try-on system uses advanced computer vision and machine learning algorithms to:</p>
-            <ul class="list-disc list-inside text-gray-600 space-y-2">
-                <li>Detect facial features with high precision</li>
-                <li>Analyze face shape and measurements</li>
-                <li>Determine skin tone and complexion</li>
-                <li>Provide accurate frame placement</li>
-                <li>Generate personalized recommendations</li>
-            </ul>
+    <!-- Our Values -->
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-100/20 dark:border-gray-700/20 transform transition-all duration-300 hover:scale-[1.02]">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="p-2 bg-rose-100 dark:bg-rose-900 rounded-lg">
+          <svg class="w-6 h-6 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-bold mb-4">Privacy & Security</h2>
-            <p class="text-gray-600 mb-4">We take your privacy seriously. Our system:</p>
-            <ul class="list-disc list-inside text-gray-600 space-y-2">
-                <li>Does not store your photos permanently</li>
-                <li>Processes all data securely</li>
-                <li>Uses encryption for data transfer</li>
-                <li>Complies with privacy regulations</li>
-                <li>Gives you full control over your data</li>
-            </ul>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Our Values</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white/50 dark:bg-gray-700/50 rounded-xl p-6 border border-gray-100/20 dark:border-gray-600/20 transform transition-all duration-300 hover:scale-105">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Innovation</h3>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">We constantly push the boundaries of what's possible with AI and computer vision technology.</p>
         </div>
-    </div>
 
-    <!-- Call to Action -->
-    <div class="text-center">
-        <a href="{% url 'tryon' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-            Try It Now
-        </a>
+        <div class="bg-white/50 dark:bg-gray-700/50 rounded-xl p-6 border border-gray-100/20 dark:border-gray-600/20 transform transition-all duration-300 hover:scale-105">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+              <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Privacy</h3>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">We prioritize your privacy and ensure that your data is always secure and protected.</p>
+        </div>
+
+        <div class="bg-white/50 dark:bg-gray-700/50 rounded-xl p-6 border border-gray-100/20 dark:border-gray-600/20 transform transition-all duration-300 hover:scale-105">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
+              <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Excellence</h3>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300">We strive for excellence in everything we do, from technology to customer service.</p>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %} 

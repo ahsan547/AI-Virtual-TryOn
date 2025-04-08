@@ -4,4 +4,7 @@ register = template.Library()
 
 @register.filter
 def index(sequence, position):
-    return sequence[position]
+    try:
+        return sequence[position]
+    except (IndexError, TypeError):
+        return None

@@ -626,10 +626,20 @@ def index(request):
     return render(request, 'virtualtryon/home.html')
 
 def try_on(request):
+    # Ensure glasses files are loaded
+    glasses_dir = os.path.join(settings.BASE_DIR, 'virtualtryon', 'static', 'virtualtryon', 'glasses')
+    if not os.path.exists(glasses_dir):
+        os.makedirs(glasses_dir)
+    
+    glasses_files = [f for f in os.listdir(glasses_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
+    glasses_files.sort()  # Sort to ensure consistent order
+    
+    if not glasses_files:
+        logger.warning("No glasses files found in directory: %s", glasses_dir)
+    
     return render(request, 'virtualtryon/try_on.html', {
         'glasses_files': glasses_files,
-        'glasses_list': glasses_list,
-        'glasses_range': range(len(glasses_files))
+        'glasses_range': range(len(glasses_files)) if glasses_files else []
     })
 
 def contact(request):
