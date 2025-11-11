@@ -1,0 +1,18 @@
+# Ignore all files in data directory except README
+*
+!README.md
+!.gitignore
+
+# But allow the directory structure
+!raw/
+!processed/
+!models/
+
+# Ignore contents but keep directories
+raw/*
+!raw/.gitkeep
+processed/*
+!processed/.gitkeep
+models/*
+!models/.gitkeep
+

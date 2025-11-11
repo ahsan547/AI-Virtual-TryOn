@@ -1,10 +1,16 @@
 from django.shortcuts import render, redirect
 from django.http import StreamingHttpResponse, HttpResponse, JsonResponse
 from django.core.files.storage import FileSystemStorage
+import os
+import warnings
+
+# Suppress MediaPipe warnings BEFORE importing mediapipe
+os.environ['GLOG_minloglevel'] = '2'  # Suppress MediaPipe C++ warnings (0=INFO, 1=WARNING, 2=ERROR, 3=FATAL)
+warnings.filterwarnings('ignore', category=UserWarning)
+
 import cv2
 import mediapipe as mp
 import numpy as np
-import os
 import json
 from sklearn.cluster import KMeans
 from django.conf import settings
@@ -12,6 +18,14 @@ import threading
 from django.views.decorators.gzip import gzip_page
 import time
 import logging
+
+# Import ML service for improved recommendations
+try:
+    from .ml_service import get_ml_recommendations, normalize_face_shape, normalize_skin_tone
+    ML_SERVICE_AVAILABLE = True
+except ImportError:
+    ML_SERVICE_AVAILABLE = False
+    print("Warning: ML service not available. Using default recommendations.")
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +56,13 @@ glasses_list = [os.path.join(glasses_dir, f) for f in glasses_files]
 current_glasses_index = 0
 
 # Load precomputed glasses attributes
-with open("glasses_attributes.json", "r") as f:
-    glasses_data = json.load(f)
+glasses_attributes_path = os.path.join(settings.BASE_DIR, "glasses_attributes.json")
+try:
+    with open(glasses_attributes_path, "r") as f:
+        glasses_data = json.load(f)
+except FileNotFoundError:
+    logger.warning(f"glasses_attributes.json not found at {glasses_attributes_path}. Using empty dict.")
+    glasses_data = {}
 
 # Add these global variables
 camera = None
@@ -76,7 +95,10 @@ class FaceAnalyzer:
             ratio_width_length = jaw_width / face_length
             ratio_cheekbone_jaw = cheekbone_width / jaw_width
             
-            if ratio_width_length < 0.75:
+            # Improved classification with more shapes
+            if ratio_width_length < 0.70:
+                return 'oblong'  # Long/rectangular
+            elif ratio_width_length < 0.75:
                 return 'rectangular'
             elif ratio_width_length > 0.85 and ratio_cheekbone_jaw < 1.1:
                 return 'round'
@@ -112,22 +134,29 @@ class FaceAnalyzer:
             r, g, b = average_color
             luminance = 0.299 * r + 0.587 * g + 0.114 * b
             
+            # Improved skin tone classification aligned with dataset
             if luminance > 200:
-                return 'fair'
-            elif luminance > 170:
-                return 'light'
-            elif luminance > 140:
-                return 'medium'
-            elif luminance > 100:
-                return 'olive'
+                return 'white'  # Fair/light
+            elif luminance > 150:
+                return 'brown'  # Medium/olive
             else:
-                return 'dark'
+                return 'black'  # Dark
                 
         except Exception as e:
             logger.error(f"Error analyzing skin tone: {str(e)}")
             return 'unknown'
     
     def get_glasses_recommendations(self, face_shape, skin_tone):
+        # Use ML-based recommendations if available
+        if ML_SERVICE_AVAILABLE:
+            try:
+                ml_rec = get_ml_recommendations(face_shape, skin_tone)
+                return ml_rec
+            except Exception as e:
+                logger.error(f"Error using ML recommendations: {e}")
+                # Fall back to default recommendations
+        
+        # Default recommendations (fallback)
         recommendations = {
             'round': {
                 'recommended': ['glasses2', 'glasses4', 'glasses7', 'glasses9'],  # Angular frames
@@ -148,11 +177,16 @@ class FaceAnalyzer:
             'rectangular': {
                 'recommended': ['glasses1', 'glasses5', 'glasses7', 'glasses8'],  # Rounded frames
                 'reason': 'Curved and rounded frames help soften angular features'
+            },
+            'oblong': {
+                'recommended': ['glasses1', 'glasses5', 'glasses7', 'glasses8'],  # Rounded frames
+                'reason': 'Curved and rounded frames help soften angular features'
             }
         }
 
         # Get base recommendations from face shape
-        base_rec = recommendations.get(face_shape, {
+        normalized_shape = normalize_face_shape(face_shape) if ML_SERVICE_AVAILABLE else face_shape.lower()
+        base_rec = recommendations.get(normalized_shape, {
             'recommended': ['glasses1', 'glasses2', 'glasses3'],
             'reason': 'Classic frame styles that suit most face shapes'
         })
@@ -163,13 +197,18 @@ class FaceAnalyzer:
             'light': 'Most frame colors work well, especially glasses2, glasses5, and glasses8',
             'medium': 'Both light and dark frames complement your tone, try glasses3 or glasses6',
             'olive': 'Gold or brown tones enhance your complexion, consider glasses5 or glasses9',
-            'dark': 'Bold colored frames create striking contrast, try glasses1 or glasses7'
+            'dark': 'Bold colored frames create striking contrast, try glasses1 or glasses7',
+            'white': 'Light and medium-toned frames work well. Consider silver, gold, or brown frames.',
+            'brown': 'Both light and dark frames complement your tone. Try tortoise, brown, or black frames.',
+            'black': 'Bold colored frames create striking contrast. Consider black, gold, or colorful frames.'
         }
+        
+        normalized_tone = normalize_skin_tone(skin_tone) if ML_SERVICE_AVAILABLE else skin_tone.lower()
 
         return {
             'frames': base_rec['recommended'],
             'shape_advice': base_rec['reason'],
-            'color_advice': color_advice.get(skin_tone, 'Various frame colors can work for you')
+            'color_advice': color_advice.get(normalized_tone, 'Various frame colors can work for you')
         }
 
 # Create a global instance of FaceAnalyzer
@@ -503,7 +542,13 @@ def process_image(image_path, glasses_index):
     results = face_mesh.process(rgb_frame)
 
     if results.multi_face_landmarks:
-        frame = apply_glasses(frame, results.multi_face_landmarks[0].landmark, glasses_list[glasses_index])
+        # Validate index before accessing
+        if 0 <= glasses_index < len(glasses_list):
+            frame = apply_glasses(frame, results.multi_face_landmarks[0].landmark, glasses_list[glasses_index])
+        else:
+            logger.warning(f"Invalid glasses_index {glasses_index}, using index 0")
+            if len(glasses_list) > 0:
+                frame = apply_glasses(frame, results.multi_face_landmarks[0].landmark, glasses_list[0])
 
     return frame
 
@@ -536,7 +581,12 @@ def generate_frames():
             if results.multi_face_landmarks:
                 # Apply glasses if face is detected
                 landmarks = results.multi_face_landmarks[0]
-                frame = apply_glasses(frame, landmarks.landmark, glasses_list[current_glasses_index])
+                # Validate index before accessing
+                if 0 <= current_glasses_index < len(glasses_list):
+                    frame = apply_glasses(frame, landmarks.landmark, glasses_list[current_glasses_index])
+                elif len(glasses_list) > 0:
+                    # Fallback to first glasses if index is invalid
+                    frame = apply_glasses(frame, landmarks.landmark, glasses_list[0])
             
             # Convert frame to bytes
             ret, buffer = cv2.imencode('.jpg', frame)
@@ -572,7 +622,14 @@ def upload_image(request):
     if request.method == 'POST':
         if 'glasses_index' in request.POST:
             # Handle glasses switching
-            glasses_index = int(request.POST['glasses_index'])
+            try:
+                glasses_index = int(request.POST['glasses_index'])
+                # Validate index
+                if glasses_index < 0 or glasses_index >= len(glasses_list):
+                    return JsonResponse({'error': 'Invalid glasses index'})
+            except (ValueError, TypeError):
+                return JsonResponse({'error': 'Invalid glasses index format'})
+            
             if 'last_uploaded_image' in request.session:
                 image_path = request.session['last_uploaded_image']
                 image = cv2.imread(image_path)
@@ -608,7 +665,12 @@ def upload_image(request):
                     skin_tone = face_analyzer.analyze_skin_tone(image, landmarks)
                     recommendations = face_analyzer.get_glasses_recommendations(face_shape, skin_tone)
                     
-                    processed_image = apply_glasses(image, landmarks.landmark, glasses_list[0])
+                    # Use first available glasses or default to index 0
+                    glasses_idx = 0 if len(glasses_list) > 0 else None
+                    if glasses_idx is not None:
+                        processed_image = apply_glasses(image, landmarks.landmark, glasses_list[glasses_idx])
+                    else:
+                        return JsonResponse({'error': 'No glasses available'})
                     if processed_image is not None:
                         output_path = fs.path('processed_' + filename)
                         cv2.imwrite(output_path, processed_image)

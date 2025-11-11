@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Left Column - Glasses Selection -->
       <div class="lg:col-span-1 space-y-8">
@@ -30,43 +30,43 @@
             <div class="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
               <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
-              </svg>
-            </div>
+                        </svg>
+                    </div>
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Select Glasses</h2>
-          </div>
+                    </div>
           
           <!-- Explanation -->
           <div class="mb-4 text-gray-600 dark:text-gray-400 italic">
             After uploading your photo, the top 3 recommended frames for your face shape will be highlighted in blue.
-          </div>
+                </div>
 
           <!-- Glasses Grid -->
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {% for i in glasses_range %}
+                    {% for i in glasses_range %}
             <div class="glasses-option cursor-pointer transform transition-all duration-300 hover:scale-105" data-index="{{ i }}">
               <div class="bg-gray-50/50 dark:bg-gray-700/50 rounded-xl p-3 shadow-lg relative">
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center">
-                    <span class="text-lg font-semibold text-blue-600 mr-2">{{ i|add:1 }}.</span>
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <span class="text-lg font-semibold text-blue-600 mr-2">{{ i|add:1 }}.</span>
                     <span class="text-gray-600 dark:text-gray-300">Glasses {{ i|add:1 }}</span>
-                  </div>
-                  <button class="favorite-btn p-2 hover:text-red-500 transition-colors"
-                          onclick="toggleFavorite(event, {{ i }})">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
-                      </path>
-                    </svg>
-                  </button>
-                </div>
-                <img src="{% static 'virtualtryon/glasses/' %}{{ glasses_files|index:i }}" 
-                     alt="Glasses {{ i|add:1 }}" 
+                            </div>
+                            <button class="favorite-btn p-2 hover:text-red-500 transition-colors"
+                                    onclick="toggleFavorite(event, {{ i }})">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                        <img src="{% static 'virtualtryon/glasses/' %}{{ glasses_files|index:i }}" 
+                             alt="Glasses {{ i|add:1 }}" 
                      class="w-full rounded-lg"
-                     onclick="selectGlasses({{ i }})">
+                             onclick="selectGlasses({{ i }})">
               </div>
-            </div>
-            {% endfor %}
-          </div>
+                    </div>
+                    {% endfor %}
+                </div>
 
           <!-- Favorites Section -->
           <div class="mt-8 border-t pt-8">
@@ -83,12 +83,12 @@
               No favorites saved yet. Click the heart icon on any glasses to save them here.
             </div>
           </div>
+            </div>
         </div>
-      </div>
 
       <!-- Right Column - Main Content -->
       <div class="lg:col-span-2 space-y-8">
-        <!-- Upload Section -->
+            <!-- Upload Section -->
         <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-100/20 dark:border-gray-700/20 transform transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center space-x-3 mb-6">
             <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
@@ -116,7 +116,7 @@
           </div>
 
           <form id="uploadForm" method="post" enctype="multipart/form-data" class="space-y-6">
-            {% csrf_token %}
+                    {% csrf_token %}
             <div class="space-y-2">
               <label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="picture">
                 Select your photo
@@ -149,17 +149,17 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                 </svg>
                 <span>Download</span>
-              </button>
+                    </button>
               {% endif %}
             </div>
-          </form>
-
+                </form>
+                
           <div id="result" class="mt-6">
             <img id="processed-image" src="" alt="" class="w-full hidden rounded-xl shadow-lg">
-          </div>
-        </div>
+                </div>
+            </div>
 
-        <!-- Webcam Section -->
+            <!-- Webcam Section -->
         <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-100/20 dark:border-gray-700/20 transform transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center space-x-3 mb-6">
             <div class="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
@@ -176,15 +176,15 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
               </svg>
               <span>Start Webcam</span>
-            </button>
+                    </button>
             <button onclick="stopWebcam()" class="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-lg">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
               <span>Stop Webcam</span>
-            </button>
-          </div>
-        </div>
+                    </button>
+                </div>
+            </div>
 
         <!-- Recommendations Section -->
         <div id="recommendations" class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-100/20 dark:border-gray-700/20 transform transition-all duration-300 hover:scale-[1.02] hidden">
@@ -196,8 +196,8 @@
             </div>
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white">AI Recommendations</h2>
           </div>
-
-          <!-- Face Analysis -->
+                
+                <!-- Face Analysis -->
           <div class="mb-6">
             <h3 class="font-bold text-lg text-gray-800 dark:text-white mb-4">Face Analysis</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -210,9 +210,9 @@
                 <div id="skinTone" class="text-gray-700 dark:text-gray-300"></div>
               </div>
             </div>
-          </div>
-
-          <!-- Recommendations -->
+                </div>
+                
+                <!-- Recommendations -->
           <div class="mb-6">
             <h3 class="font-bold text-lg text-gray-800 dark:text-white mb-4">Recommendations</h3>
             <div class="space-y-6">
@@ -230,22 +230,22 @@
               </div>
             </div>
           </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
 <style>
 .glasses-option {
-  transition: all 0.3s ease;
+    transition: all 0.3s ease;
 }
 .glasses-option.recommended {
-  transform: scale(1.02);
+    transform: scale(1.02);
 }
 .recommendation-badge {
-  font-size: 0.75rem;
-  z-index: 10;
+    font-size: 0.75rem;
+    z-index: 10;
 }
 </style>
 {% endblock %}
@@ -295,12 +295,28 @@ function selectGlasses(index) {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                try {
+                    const data = JSON.parse(text);
                 if (data.processed_url) {
                     processedImage.src = data.processed_url + "?t=" + new Date().getTime();
                     console.log("Updated processed image URL");
                 }
+                } catch (error) {
+                    console.error("Error parsing JSON:", error);
+                    console.log("Response text:", text);
+                    throw new Error("Invalid JSON response from server");
+                }
+            })
+            .catch(error => {
+                console.error("Error selecting glasses:", error);
+                alert("Error selecting glasses: " + error.message);
             });
         }
     }
@@ -313,26 +329,80 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
     
     const formData = new FormData(this);
     const submitButton = this.querySelector('button[type="submit"]');
+    const fileInput = document.getElementById('picture');
+    
+    // Check if file is selected
+    if (!fileInput.files || !fileInput.files[0]) {
+        alert('Please select an image to upload');
+        return;
+    }
+    
+    // Add loading state
     submitButton.disabled = true;
+    submitButton.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
     
     fetch("{% url 'upload_image' %}", {
         method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Response:", data);  // Debug log
-        if (data.error) {
-            alert(data.error);
-            return;
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
         }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+        }
+        return response.text();  // First get text response to check if it's valid JSON
+    })
+    .then(text => {
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+            console.log('Response text:', text);
+            // Check if the response looks like HTML (might be a Django error page)
+            if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+                throw new Error('Server returned an HTML error page instead of JSON. The server might be experiencing issues.');
+            } else {
+                throw new Error('Invalid response format from server');
+            }
+        }
+        
+        console.log("Response:", data);
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
         if (data.processed_url) {
             const processedImage = document.getElementById('processed-image');
+            if (processedImage) {
             processedImage.src = data.processed_url;
             processedImage.classList.remove('hidden');
             
-            // Update recommendations
+                // Update recommendations if data exists
+                if (data.face_shape || data.skin_tone || data.recommendations) {
             updateRecommendations(data);
+                }
+            }
+            
+            // Enable download button if it exists
+            const downloadBtn = document.getElementById('download-btn');
+            if (downloadBtn) {
+                downloadBtn.classList.remove('hidden');
+                downloadBtn.addEventListener('click', function() {
+                    // Download the processed image
+                    const link = document.createElement('a');
+                    link.href = data.processed_url;
+                    link.download = 'processed_image.jpg';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            }
+        } else {
+            throw new Error('No processed image URL in the response');
         }
     })
     .catch(error => {
@@ -340,7 +410,9 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
         alert('Error uploading image: ' + error.message);
     })
     .finally(() => {
+        // Restore button state
         submitButton.disabled = false;
+        submitButton.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg><span>Upload</span>';
     });
 });
 
